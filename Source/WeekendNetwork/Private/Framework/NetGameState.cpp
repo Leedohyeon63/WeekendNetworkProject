@@ -25,10 +25,20 @@ void ANetGameState::Tick(float DeltaTime)
 
 void ANetGameState::AddScore(int32 PlayerIndex, int32 Amount)
 {
-	if (!HasAuthority()) return;
+	if (!HasAuthority())
+	{
+		return;
+	} 
 
-	if (PlayerIndex == 0) Player1Score += Amount;
-	else if (PlayerIndex == 1) Player2Score += Amount;
+	if (PlayerIndex == 0)
+	{
+		Player1Score += Amount;
+	}
+
+	else if (PlayerIndex == 1)
+	{
+		 Player2Score += Amount;
+	}
 }
 
 void ANetGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
