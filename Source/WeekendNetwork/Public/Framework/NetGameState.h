@@ -24,6 +24,8 @@ public:
 
 	void AddScore(int32 PlayerIndex, int32 Amount);
 
+	UFUNCTION()
+	void OnRep_WinnerIndex();
 public:
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Game Data")
 	float GameElapsedTime = 0.0f;
@@ -36,4 +38,7 @@ public:
 
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Game Data")
 	int32 Player2Score = 0;
+
+	UPROPERTY(ReplicatedUsing = OnRep_WinnerIndex, BlueprintReadOnly, Category = "Game Data")
+	int32 WinnerIndex = -1;
 };

@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "ScoreCharacter.h"
 #include "Components/SphereComponent.h"
+#include "Framework/NetGameState.h"
 
 // Sets default values
 AScoreActor::AScoreActor()
@@ -27,26 +28,53 @@ AScoreActor::AScoreActor()
 void AScoreActor::BeginPlay()
 {
 	Super::BeginPlay();
-	Collision->OnComponentBeginOverlap.AddDynamic(this, &AScoreActor::OnOverlapBegin);
+	//Collision->OnComponentBeginOverlap.AddDynamic(this, &AScoreActor::OnOverlapBegin);
+    if (HasAuthority())
+    {
+        Collision->OnComponentBeginOverlap.AddDynamic(this, &AScoreActor::OnOverlapBegin);
+    }
 
 }
 
 void AScoreActor::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	//HasAuthority() &&
-	if (OtherActor && OtherActor != this)
-	{
-		if (!bIsOverlap)
-		{
-			bIsOverlap = true;
-			AScoreCharacter* PSC = Cast<AScoreCharacter>(OtherActor);
+    if (!HasAuthority())
+    {
+        return;
+    }
 
-			if (PSC)
-			{
-				//PSC->TestAddScore();
-			}
-			Destroy();
-		}
-	}
+    if (OtherActor && OtherActor != this)
+    {
+        if (!bIsOverlap)
+        {
+            bIsOverlap = true;
+            AScoreCharacter* PSC = Cast<AScoreCharacter>(OtherActor);
+
+            if (PSC)
+            {
+                ANetGameState* GS = GetWorld()->GetGameState<ANetGameState>();
+                if (GS)
+                {
+                    int32 PlayerIndex = -1;
+                    APlayerController* PC = Cast<APlayerController>(PSC->GetController());
+
+                    if (PC)
+                    {
+                        if (PC->IsLocalController())
+                        {
+                            PlayerIndex = 0; 
+                        }
+                        else
+                        {
+                            PlayerIndex = 1; 
+                        }
+
+                        GS->AddScore(PlayerIndex, 1);
+                    }
+                }
+            }
+            Destroy();
+        }
+    }
 }
 

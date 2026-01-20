@@ -16,6 +16,8 @@ class WEEKENDNETWORK_API UNetHUD : public UUserWidget
 	GENERATED_BODY()
 
 protected:
+	virtual void NativeConstruct() override;
+
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 	UFUNCTION(BlueprintCallable, Category = "Game Data")
 	void UpdateTimeDisplay();
@@ -23,6 +25,7 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Game Data")
 	void UpdateScoreDisplay();
 
+	void CheckGameOver();
 protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (BindWidget))
 	TObjectPtr<UTextBlock> TimeText = nullptr;
@@ -33,6 +36,14 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (BindWidget))
 	TObjectPtr<UTextBlock> OtherScore = nullptr;
 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (BindWidget))
+	TObjectPtr<UTextBlock> WinText = nullptr;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (BindWidget))
+	TObjectPtr<UTextBlock> LoseText = nullptr;
+
 private:
 	TWeakObjectPtr<class ANetGameState> CachedGameState = nullptr;
+	bool bResultShown = false;
+
 };

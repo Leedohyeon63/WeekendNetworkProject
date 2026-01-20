@@ -5,6 +5,21 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/TextBlock.h"
 
+void UNetHUD::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	if (WinText)
+	{
+		WinText->SetVisibility(ESlateVisibility::Hidden);
+	}
+
+	if (LoseText)
+	{
+		LoseText->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
 void UNetHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
@@ -18,6 +33,7 @@ void UNetHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	{
 		UpdateTimeDisplay();
 		UpdateScoreDisplay();
+		CheckGameOver();
 	}
 }
 
@@ -47,6 +63,45 @@ void UNetHUD::UpdateScoreDisplay()
 		if (OtherScore)
 		{
 			OtherScore->SetText(FText::AsNumber(CachedGameState->Player2Score));
+		}
+	}
+}
+
+void UNetHUD::CheckGameOver()
+{
+	if (bResultShown || !CachedGameState.IsValid() || CachedGameState->WinnerIndex == -1)
+	{
+		return;
+	}
+	bResultShown = true;
+
+	int32 WinnerIndex = CachedGameState->WinnerIndex;
+
+	int32 MyIndex = GetOwningPlayer()->HasAuthority() ? 0 : 1;
+
+	if (WinnerIndex == 2)
+	{
+		if (LoseText)
+		{
+			LoseText->SetText(FText::FromString(TEXT("DRAW!")));
+			LoseText->SetVisibility(ESlateVisibility::Visible);
+		}
+	}
+	else
+	{
+		if (WinnerIndex == MyIndex)
+		{
+			if (WinText)
+			{
+				WinText->SetVisibility(ESlateVisibility::Visible);
+			}
+		}
+		else
+		{
+			if (LoseText)
+			{
+				LoseText->SetVisibility(ESlateVisibility::Visible);
+			}
 		}
 	}
 }
